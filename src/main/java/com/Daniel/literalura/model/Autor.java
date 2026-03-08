@@ -69,8 +69,16 @@ public class Autor {
 
     @Override
     public String toString() {
-        return "Autor: " + nombre +
-                ", Nacimiento: " + fechaNacimiento +
-                ", Fallecimiento: " + fechaFallecimiento;
+        String titulosLibros = libros.stream()
+                .map(Libro::getTitulo)
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("Sin libros registrados");
+
+        return "\n----- AUTOR -----" +
+                "\nNombre: " + nombre +
+                "\nFecha de nacimiento: " + fechaNacimiento +
+                "\nFecha de fallecimiento: " + fechaFallecimiento +
+                "\nLibros: " + titulosLibros +
+                "\n-----------------\n";
     }
 }

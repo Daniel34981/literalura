@@ -1,15 +1,18 @@
 package com.Daniel.literalura.principal;
 
-import com.Daniel.literalura.repository.AutorRepository;
-import com.Daniel.literalura.repository.LibroRepository;
-import com.Daniel.literalura.service.ConsumoAPI;
-import com.Daniel.literalura.service.ConvierteDatos;
 import com.Daniel.literalura.model.Autor;
 import com.Daniel.literalura.model.Datos;
 import com.Daniel.literalura.model.DatosAutor;
 import com.Daniel.literalura.model.DatosLibro;
 import com.Daniel.literalura.model.Libro;
+import com.Daniel.literalura.repository.AutorRepository;
+import com.Daniel.literalura.repository.LibroRepository;
+import com.Daniel.literalura.service.ConsumoAPI;
+import com.Daniel.literalura.service.ConvierteDatos;
+
+import java.util.List;
 import java.util.Optional;
+import java.util.Scanner;
 
 import java.util.Scanner;
 
@@ -148,25 +151,62 @@ public class Principal {
 
     private void listarAutoresVivosPorAnio() {
         System.out.println("Ingresa el año:");
+        try {
+            Integer anio = Integer.parseInt(teclado.nextLine());
+
+            List<Autor> autoresConFechaFallecimiento = autorRepository
+                    .findByFechaNacimientoLessThanEqualAndFechaFallecimientoGreaterThanEqual(anio, anio);
+
+            List<Autor> autoresSinFechaFallecimiento = autorRepository
+                    .findByFechaNacimientoLessThanEqualAndFechaFallecimientoIsNull(anio);
+
+            if (autoresConFechaFallecimiento.isEmpty() && autoresSinFechaFallecimiento.isEmpty()) {
+                System.out.println("No se encontraron autores vivos en ese año.");
+                return;
+            }
+
+            autoresConFechaFallecimiento.forEach(System.out::println);
+            autoresSinFechaFallecimiento.forEach(System.out::println);
+
+        } catch (NumberFormatException e) {
+            System.out.println("Debes ingresar un año válido.");
+        }
     }
 
     private void listarLibrosPorIdioma() {
         System.out.println("""
-                Ingresa el idioma para buscar los libros:
-                es - español
-                en - inglés
-                fr - francés
-                pt - portugués
-                """);
+            Ingresa el idioma para buscar los libros:
+            es - español
+            en - inglés
+            fr - francés
+            pt - portugués
+            """);
+
+        var idioma = teclado.nextLine().trim().toLowerCase();
+
+        List<Libro> libros = libroRepository.findByIdiomaIgnoreCase(idioma);
+
+        if (libros.isEmpty()) {
+            System.out.println("No se encontraron libros en ese idioma.");
+            return;
+        }
+
+        libros.forEach(System.out::println);
     }
 
     private void mostrarCantidadLibrosPorIdioma() {
         System.out.println("""
-                Ingresa el idioma para consultar cantidad:
-                es - español
-                en - inglés
-                fr - francés
-                pt - portugués
-                """);
+            Ingresa el idioma para consultar cantidad:
+            es - español
+            en - inglés
+            fr - francés
+            pt - portugués
+            """);
+
+        var idioma = teclado.nextLine().trim().toLowerCase();
+
+        Long cantidad = libroRepository.countByIdiomaIgnoreCase(idioma);
+
+        System.out.println("Cantidad de libros en idioma '" + idioma + "': " + cantidad);
     }
 }
